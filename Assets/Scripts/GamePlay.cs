@@ -52,7 +52,7 @@ public class ScreenUtils
 	{
 		var topRight = camera.ViewportToWorldPoint(new Vector3(1, 1, camera.nearClipPlane));
 		var bottomLeft = camera.ViewportToWorldPoint(new Vector3(0, 0, camera.nearClipPlane));
-		return new Rect(camera.ScreenToWorldPoint(bottomLeft), topRight - bottomLeft);
+		return new Rect(bottomLeft, topRight - bottomLeft);
 	}
 }
 
@@ -88,27 +88,22 @@ public class GamePlay : MonoBehaviour
 		while (true)
 		{
 			SpawnNewCubes();
-			CheckPlayeClicks();
 			MoveCubesToBottom();
 			RemoveDeadCubes();
 			yield return new WaitForEndOfFrame();
 		}
 	}
 
-	private void CheckPlayeClicks()
+	private void Update()
 	{
-		//check input
-		if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+		var position = Input.mousePosition;
+		var worldPositon = Camera.main.ScreenToWorldPoint(position);
+
+		var hits = Physics.RaycastAll(new Ray(worldPositon, Vector3.forward));
+		foreach (var raycastHit in hits)
 		{
-			var position = Input.mousePosition;
-			var worldPositon = Camera.main.ScreenToWorldPoint(position);
-		
-			var hits = Physics.RaycastAll(new Ray(worldPositon, Vector3.forward));
-			foreach (var raycastHit in hits)
-			{
-				_goList.Remove(raycastHit.collider.gameObject);
-				Destroy(raycastHit.collider.gameObject);
-			}
+			_goList.Remove(raycastHit.collider.gameObject);
+			Destroy(raycastHit.collider.gameObject);
 		}
 	}
 
